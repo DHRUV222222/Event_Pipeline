@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_CREDENTIALS = credentials('aws-event-pipeline-creds')
-        TF_WORKING_DIR = 'infra'
+        TF_WORKING_DIR = '.' // The directory is now the root
         S3_BUCKET = 'event-pipeline-lambda-artifacts-dhruv'
         LAMBDA_DAILY = 'daily_summary'
         LAMBDA_PROCESSOR = 'processor'
