@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        AWS_ACCESS_KEY_ID = credentials('AKIA6OVYQCQYVR5OM2IV')
-        AWS_SECRET_ACCESS_KEY = credentials('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')
+        AWS_CREDENTIALS = credentials('aws-event-pipeline-creds')
         TF_WORKING_DIR = 'infra'
         S3_BUCKET = 'event-pipeline-lambda-artifacts-dhruv'
         LAMBDA_DAILY = 'daily_summary'
