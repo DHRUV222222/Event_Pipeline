@@ -10,7 +10,6 @@ pipeline {
     }
 
     options {
-        // Avoid long console logs; keep builds manageable
         timeout(time: 20, unit: 'MINUTES')
     }
 
@@ -25,14 +24,11 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 dir("${TF_WORKING_DIR}") {
-                    // ✅ Use caching to avoid re-downloading provider plugins
-                    cache(path: '.terraform', key: 'terraform-cache-v1') {
-                        sh '''
-                            terraform init -input=false -upgrade=false
-                            terraform plan -out=tfplan
-                            terraform apply -auto-approve tfplan
-                        '''
-                    }
+                    sh '''
+                        terraform init -input=false -upgrade=false
+                        terraform plan -out=tfplan
+                        terraform apply -auto-approve tfplan
+                    '''
                 }
             }
         }
