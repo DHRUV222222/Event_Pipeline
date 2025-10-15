@@ -3,10 +3,15 @@ pipeline {
 
     environment {
         AWS_CREDENTIALS = credentials('aws-event-pipeline-creds')
-        TF_WORKING_DIR = '.' // The directory is now the root
+        TF_WORKING_DIR = '.'
         S3_BUCKET = 'event-pipeline-lambda-artifacts-dhruv'
         LAMBDA_DAILY = 'daily_summary'
         LAMBDA_PROCESSOR = 'processor'
+    }
+
+    options {
+        // Avoid long console logs; keep builds manageable
+        timeout(time: 20, unit: 'MINUTES')
     }
 
     stages {
@@ -20,9 +25,14 @@ pipeline {
         stage('Terraform Init & Apply') {
             steps {
                 dir("${TF_WORKING_DIR}") {
-                    sh 'terraform init'
-                    sh 'terraform plan -out=tfplan'
-                    sh 'terraform apply -auto-approve tfplan'
+                    // ✅ Use caching to avoid re-downloading provider plugins
+                    cache(path: '.terraform', key: 'terraform-cache-v1') {
+                        sh '''
+                            terraform init -input=false -upgrade=false
+                            terraform plan -out=tfplan
+                            terraform apply -auto-approve tfplan
+                        '''
+                    }
                 }
             }
         }
@@ -65,10 +75,10 @@ pipeline {
 
     post {
         success {
-            echo 'All stages executed successfully!'
+            echo '✅ All stages executed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Please check the logs.'
+            echo '❌ Pipeline failed. Please check the logs.'
         }
     }
 }
